@@ -4,9 +4,14 @@ import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import "react-native-reanimated";
-import { ClientType, ShopStateType } from "../types";
+import { ClientType, ShopStateType, TransactionType } from "../types";
 import { getData } from "../utils/functions";
-import { useAppState, useClientsState, useShopState } from "../lib/store";
+import {
+  useAppState,
+  useClientsState,
+  useShopState,
+  useTransactionState,
+} from "../lib/store";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { StatusBar } from "expo-status-bar";
 // import * as Linking from "expo-linking";
@@ -32,6 +37,7 @@ export default function RootLayout() {
   const { firstTime, setFirstTime } = useAppState();
   const { setShop } = useShopState();
   const { clients, setClients } = useClientsState();
+  const { setTransactions, transactions } = useTransactionState();
   const [isFirstTimeLoaded, setIsFirstTimeLoaded] = useState(false);
 
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.
@@ -75,6 +81,17 @@ export default function RootLayout() {
         }
       };
       await getClients();
+
+      // get Transactions
+      const getTransactions = async () => {
+        const value = (await getData("transactions")) as TransactionType[];
+        if (value === null) {
+          setTransactions([]);
+        } else {
+          setTransactions(value);
+        }
+      };
+      await getTransactions();
     };
 
     loadData();
@@ -180,6 +197,14 @@ function RootLayoutNav() {
         <Stack.Screen
           name="history"
           options={{ presentation: "modal", title: "Repertoire" }}
+        />
+        <Stack.Screen
+          name="transactions"
+          options={{ presentation: "modal", title: "Transactions" }}
+        />
+        <Stack.Screen
+          name="list"
+          options={{ presentation: "modal", title: "Liste de transactions" }}
         />
       </Stack>
       <StatusBar style="auto" animated />

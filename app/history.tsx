@@ -1,9 +1,10 @@
-import { FlatList, StyleSheet, Text, View } from "react-native";
+import { FlatList, Platform, StyleSheet, Text, View } from "react-native";
 import React from "react";
 import { useClientsState, useShopState } from "../lib/store";
-import { primary } from "../constants/Colors";
+import { primary, tintColorLight } from "../constants/Colors";
 import { TextSize } from "../constants/Size";
 import AntDesign from "@expo/vector-icons/AntDesign";
+import { StatusBar } from "expo-status-bar";
 
 const HistoryScreen = () => {
   const { shop, setShop } = useShopState();
@@ -22,15 +23,26 @@ const HistoryScreen = () => {
           <View
             style={[
               styles.item,
-              { backgroundColor: index % 2 === 0 ? "#778899" : primary },
+              {
+                backgroundColor: index % 2 === 0 ? "#bcd" : "#eef",
+                shadowColor: "#000000",
+                shadowOffset: {
+                  width: 0,
+                  height: 1,
+                },
+                shadowOpacity: 0.16,
+                shadowRadius: 1.51,
+                elevation: 2,
+              },
             ]}
           >
-            <Text style={styles.number}>
-              {" "}
-              <AntDesign name="user" size={24} color="white" />
-              --- {item.number}
+            <Text style={styles.number}>+(243)-{item.number}</Text>
+            <Text style={styles.points}>
+              {item.points}{" "}
+              <Text style={{ fontSize: 12 }}>
+                point{item.points > 1 ? "s" : ""}
+              </Text>
             </Text>
-            <Text style={styles.points}>{item.points} points</Text>
             <Text style={styles.createdAt}>
               {new Date(item.createdAt).toLocaleString("fr-FR", {
                 year: "numeric",
@@ -59,6 +71,10 @@ const HistoryScreen = () => {
         onEndReached={null}
         onEndReachedThreshold={0.5}
       />
+      <StatusBar
+        style={Platform.OS === "android" ? "dark" : "light"}
+        animated
+      />
     </View>
   );
 };
@@ -74,7 +90,6 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   item: {
-    backgroundColor: primary,
     padding: 15,
     width: "100%",
     borderRadius: 10,
@@ -83,16 +98,14 @@ const styles = StyleSheet.create({
     gap: 5,
   },
   number: {
-    fontSize: TextSize.md,
-    fontWeight: "500",
-    color: "white",
+    color: "black",
   },
   points: {
     fontSize: TextSize.xxl,
-    color: "white",
+    color: "black",
   },
   createdAt: {
     fontSize: TextSize.sm,
-    color: "lightgray",
+    color: "gray",
   },
 });

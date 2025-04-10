@@ -21,12 +21,13 @@ import {
 } from "../../utils/functions";
 import { useAppState, useClientsState, useShopState } from "../../lib/store";
 import { Redirect, useRouter } from "expo-router";
-import { primary } from "../../constants/Colors";
+import { primary, tintColorLight } from "../../constants/Colors";
 import { TextSize } from "../../constants/Size";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import Entypo from "@expo/vector-icons/Entypo";
 import { StatusBar } from "expo-status-bar";
+import AntDesign from "@expo/vector-icons/AntDesign";
 
 const { height: HEIGHT } = Dimensions.get("window");
 const DATE = new Date().getFullYear();
@@ -391,6 +392,24 @@ const HomeScreen = () => {
                     Le numero ne doit pas avoir un 0 au debut ou un +243
                   </Text>
                 ) : null}
+
+                {/* transactions */}
+                <TouchableOpacity
+                  style={[
+                    styles.buttonX,
+                    {
+                      backgroundColor: !loading ? tintColorLight : "gray",
+                      marginTop: 15,
+                    },
+                  ]}
+                  disabled={loading}
+                  onPress={() => router.navigate("/transactions")}
+                >
+                  <AntDesign name="linechart" size={24} color="white" />
+                  <Text style={{ fontSize: TextSize.md, color: "white" }}>
+                    Transactions
+                  </Text>
+                </TouchableOpacity>
               </View>
             </View>
           </View>

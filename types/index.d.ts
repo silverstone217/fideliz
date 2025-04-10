@@ -18,3 +18,11 @@ export type ClientType = {
   points: number;
   createdAt: number;
 };
+
+export type TransactionType = {
+  number: string;
+  amount: number;
+  points: number;
+  currency: "USD" | "FCD";
+  createdAt: number;
+};

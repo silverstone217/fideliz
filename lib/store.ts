@@ -1,5 +1,10 @@
 import { create } from "zustand";
-import { AppStateType, ClientType, ShopStateType } from "../types";
+import {
+  AppStateType,
+  ClientType,
+  ShopStateType,
+  TransactionType,
+} from "../types";
 
 export const useAppState = create<AppStateType>((set) => ({
   firstTime: true,
@@ -23,4 +28,15 @@ type ClientStateType = {
 export const useClientsState = create<ClientStateType>((set) => ({
   clients: [],
   setClients: (client: ClientType[]) => set({ clients: [...client] }),
+}));
+
+type TransactionStateType = {
+  transactions: TransactionType[];
+  setTransactions: (transaction: TransactionType[]) => void;
+};
+
+export const useTransactionState = create<TransactionStateType>((set) => ({
+  transactions: [],
+  setTransactions: (transaction: TransactionType[]) =>
+    set({ transactions: [...transaction] }),
 }));

@@ -13,7 +13,11 @@ import React, { useEffect, useMemo, useState } from "react";
 import { TextSize } from "../constants/Size";
 import { primary } from "../constants/Colors";
 import { useRouter } from "expo-router";
-import { useClientsState, useShopState } from "../lib/store";
+import {
+  useClientsState,
+  useShopState,
+  useTransactionState,
+} from "../lib/store";
 import {
   calculatePoints,
   isEmptyString,
@@ -21,6 +25,7 @@ import {
   validateAndFormatAmount,
 } from "../utils/functions";
 import { StatusBar } from "expo-status-bar";
+import { TransactionType } from "../types";
 
 type Props = {
   userInfo: string;
@@ -31,6 +36,7 @@ const CURRENCIES = ["USD", "FCD"];
 const AddPoints = ({ userInfo }: Props) => {
   const { shop, setShop } = useShopState();
   const { clients, setClients } = useClientsState();
+  const { setTransactions, transactions } = useTransactionState();
   const CurrencyFiltered = CURRENCIES.filter((cu) =>
     cu === "USD" ? shop?.usd !== 0 : cu === "FCD" ? shop?.fcd !== 0 : true
   );
@@ -106,7 +112,22 @@ const AddPoints = ({ userInfo }: Props) => {
       setClients([...clients]);
       const updateClients = await setData("clients", clients);
 
-      if (updateClients) setTimeout(() => router.navigate("/shop"), 2000);
+      const formTrans: TransactionType = {
+        amount: Number(amount),
+        number: client.number,
+        points: AmountPoints,
+        currency: currency as "FCD" | "USD",
+        createdAt: Date.now(),
+      };
+
+      let transData = [...transactions];
+      transData.push(formTrans);
+
+      const updateTransactions = await setData("transactions", transData);
+      setTransactions([...transData]);
+
+      if (updateClients && updateTransactions)
+        setTimeout(() => router.navigate("/shop"), 2000);
     } catch (error) {
       setError("Impossible de continuer réessayez plus tard!");
     } finally {

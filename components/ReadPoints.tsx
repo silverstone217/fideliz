@@ -10,7 +10,11 @@ import {
   View,
 } from "react-native";
 import React, { useEffect, useState } from "react";
-import { useClientsState, useShopState } from "../lib/store";
+import {
+  useClientsState,
+  useShopState,
+  useTransactionState,
+} from "../lib/store";
 import { TextSize } from "../constants/Size";
 import { useRouter } from "expo-router";
 import {
@@ -20,6 +24,7 @@ import {
 } from "../utils/functions";
 import { primary } from "../constants/Colors";
 import { StatusBar } from "expo-status-bar";
+import { TransactionType } from "../types";
 
 type Props = {
   userInfo: string;
@@ -41,6 +46,7 @@ const ReadPoints = ({ userInfo }: Props) => {
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { setTransactions, transactions } = useTransactionState();
 
   const [points, setPoints] = useState("0");
 
@@ -91,7 +97,22 @@ const ReadPoints = ({ userInfo }: Props) => {
 
       const updateClients = await setData("clients", clients);
 
-      if (updateClients) setTimeout(() => router.navigate("/shop"), 2000);
+      const formTrans: TransactionType = {
+        amount: 0,
+        number: client.number,
+        points: -Number(points),
+        currency: "USD",
+        createdAt: Date.now(),
+      };
+
+      let transData = [...transactions];
+      transData.push(formTrans);
+
+      const updateTransactions = await setData("transactions", transData);
+      setTransactions([...transData]);
+
+      if (updateClients && updateTransactions)
+        setTimeout(() => router.navigate("/shop"), 2000);
     } catch (error) {
       setError("Impossible de continuer réessayez plus tard!");
     } finally {
