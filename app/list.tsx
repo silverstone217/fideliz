@@ -4,27 +4,30 @@ import {
   StyleSheet,
   Text,
   View,
-  TextInput,
   TouchableOpacity,
   Pressable,
+  Animated,
 } from "react-native";
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { StatusBar } from "expo-status-bar";
 import { useTransactionState } from "../lib/store";
 import { TextSize } from "../constants/Size";
 import {
   convertToFCD,
   convertToUSD,
-  getAmountByCurrencyAndDate,
+  getAmountByCurrency,
 } from "../utils/functions";
 import { TransactionType } from "../types";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { primary } from "../constants/Colors";
 
 const ListTransactions = () => {
-  const { setTransactions, transactions } = useTransactionState();
+  const { transactions } = useTransactionState();
   const [searchByDate, setSearchByDate] = useState<Date | null>(null);
   const [show, setShow] = useState(false);
+  const [showScrollToTopButton, setShowScrollToTopButton] = useState(false); // État pour afficher le bouton
+  const flatListRef = useRef<FlatList>(null); // Référence pour FlatList
 
   const filteredTrans = useMemo(() => {
     if (!searchByDate) return transactions; // Si pas de date, afficher toutes les transactions
@@ -51,17 +54,24 @@ const ListTransactions = () => {
 
   const getTotalUSDByDate = useMemo(() => {
     if (!searchByDate) return 0;
-    return getAmountByCurrencyAndDate("USD", filteredTrans, "d");
+    return getAmountByCurrency("USD", filteredTrans);
   }, [searchByDate, filteredTrans]);
 
   const getTotalFCDByDate = useMemo(() => {
     if (!searchByDate) return 0;
-    return getAmountByCurrencyAndDate("FCD", filteredTrans, "d");
+    return getAmountByCurrency("FCD", filteredTrans);
   }, [searchByDate, filteredTrans]);
+
+  // Fonction pour revenir en haut de la liste
+  const scrollToTop = () => {
+    flatListRef.current?.scrollToOffset({ animated: true, offset: 0 });
+    setShowScrollToTopButton(false); // Masquer le bouton après le retour en haut
+  };
 
   return (
     <View style={styles.container}>
       <FlatList
+        ref={flatListRef} // Référence pour contrôler le FlatList
         data={filteredTrans}
         keyExtractor={(item) => item.createdAt.toLocaleString()}
         ListFooterComponent={null}
@@ -71,6 +81,11 @@ const ListTransactions = () => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
           gap: 15,
+        }}
+        onScroll={(event) => {
+          // Surveiller la position de défilement
+          const offsetY = event.nativeEvent.contentOffset.y;
+          setShowScrollToTopButton(offsetY > 300); // Afficher le bouton si on dépasse une hauteur de défilement (300px ici)
         }}
         ListEmptyComponent={
           <View
@@ -213,6 +228,16 @@ const ListTransactions = () => {
         )}
       />
 
+      {/* Bouton pour revenir en haut */}
+      {showScrollToTopButton && (
+        <TouchableOpacity
+          onPress={scrollToTop}
+          style={styles.scrollToTopButton}
+        >
+          <MaterialIcons name="arrow-upward" size={24} color="white" />
+        </TouchableOpacity>
+      )}
+
       {show && (
         <DateTimePicker
           testID="dateTimePicker"
@@ -239,6 +264,16 @@ const styles = StyleSheet.create({
     gap: 20,
     paddingHorizontal: 20,
     paddingVertical: 20,
-    paddingBottom: 30,
+    paddingBottom: 15,
+    position: "relative",
+  },
+  scrollToTopButton: {
+    position: "absolute",
+    bottom: "10%",
+    right: "5%",
+    backgroundColor: primary,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 5,
   },
 });

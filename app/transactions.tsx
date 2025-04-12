@@ -360,63 +360,71 @@ const transactions = () => {
             }}
           >
             {transactions.length > 0 ? (
-              transactions.slice(0, 5).map((item, idx) => (
-                <View
-                  style={{
-                    gap: 5,
-                    backgroundColor: idx % 2 === 0 ? "#C7D2E7" : "#eef",
-                    padding: 10,
-                    borderRadius: 5,
-                    shadowColor: "#000000",
-                    shadowOffset: {
-                      width: 0,
-                      height: 1,
-                    },
-                    shadowOpacity: 0.16,
-                    shadowRadius: 1.51,
-                    elevation: 2,
-                  }}
-                  key={idx}
-                >
-                  <Text>+(243)-{item.number}</Text>
+              transactions
+                .sort((a, b) => {
+                  if (a.createdAt < b.createdAt) return 1;
+                  if (a.createdAt > b.createdAt) return -1;
+                  return 0;
+                })
+                .slice(0, 5)
+                .map((item, idx) => (
                   <View
                     style={{
-                      width: "100%",
-                      flexDirection: "row",
-                      alignItems: "center",
-                      gap: 20,
+                      gap: 5,
+                      backgroundColor: idx % 2 === 0 ? "#C7D2E7" : "#eef",
+                      padding: 10,
+                      borderRadius: 5,
+                      shadowColor: "#000000",
+                      shadowOffset: {
+                        width: 0,
+                        height: 1,
+                      },
+                      shadowOpacity: 0.16,
+                      shadowRadius: 1.51,
+                      elevation: 2,
                     }}
+                    key={idx}
                   >
-                    <Text
+                    <Text>+(243)-{item.number}</Text>
+                    <View
                       style={{
-                        fontSize: TextSize.md,
-                        fontWeight: "600",
-                        color: item.amount > 1 ? "green" : "tomato",
+                        width: "100%",
+                        flexDirection: "row",
+                        alignItems: "center",
+                        gap: 20,
                       }}
                     >
-                      {item.points} <Text>Pt{item.points > 1 ? "s" : ""}</Text>
-                    </Text>
+                      <Text
+                        style={{
+                          fontSize: TextSize.md,
+                          fontWeight: "600",
+                          color: item.amount > 1 ? "green" : "tomato",
+                        }}
+                      >
+                        {item.points}{" "}
+                        <Text>Pt{item.points > 1 ? "s" : ""}</Text>
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: TextSize.md,
+                          fontWeight: "600",
+                        }}
+                      >
+                        {item.currency === "USD"
+                          ? convertToUSD(item.amount)
+                          : convertToFCD(item.amount)}
+                      </Text>
+                    </View>
                     <Text
                       style={{
-                        fontSize: TextSize.md,
-                        fontWeight: "600",
+                        fontSize: 10,
+                        opacity: 0.6,
                       }}
                     >
-                      {item.currency === "USD"
-                        ? convertToUSD(item.amount)
-                        : convertToFCD(item.amount)}
+                      {new Date(item.createdAt).toLocaleDateString("fr-FR")}
                     </Text>
                   </View>
-                  <Text
-                    style={{
-                      fontSize: 10,
-                      opacity: 0.6,
-                    }}
-                  >
-                    {new Date(item.createdAt).toLocaleDateString("fr-FR")}
-                  </Text>
-                </View>
-              ))
+                ))
             ) : (
               <View
                 style={{ paddingTop: 20, width: "100%", alignItems: "center" }}
